@@ -1,94 +1,128 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Local AI Model Atlas | Hardware Fit Finder</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1020"><title>AI Model Atlas — Voice Assistant Lab</title>
 <style>
-:root{--bg:#0b1020;--panel:#131b2e;--line:#283650;--text:#edf3ff;--muted:#a6b4cd;--accent:#7cafff;--green:#71e0b0;--yellow:#ffd479;--red:#ff9292}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#162747,var(--bg) 60%);color:var(--text);font:15px/1.5 system-ui,Segoe UI,Arial,sans-serif}header{padding:34px max(18px,calc((100% - 1200px)/2)) 24px;border-bottom:1px solid var(--line)}h1{font-size:clamp(28px,4vw,44px);line-height:1.1;margin:0 0 12px}h2{font-size:20px;margin:0 0 10px}.sub{color:var(--muted);max-width:850px}.wrap{max-width:1200px;margin:auto;padding:22px 18px}.notice{background:#172944;border:1px solid #35547d;padding:14px 16px;border-radius:14px;margin-bottom:18px}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}.stat,.panel,.card{background:rgba(19,27,46,.94);border:1px solid var(--line);border-radius:14px}.stat{padding:14px}.stat b{font-size:24px;display:block}.stat span,.muted{color:var(--muted)}.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:18px 0}input,select{background:#0d1526;color:var(--text);border:1px solid #3a4b68;border-radius:10px;padding:12px;width:100%;font:inherit}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{padding:15px;display:flex;flex-direction:column;gap:8px}.card h3{margin:0;font-size:17px}.meta{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:12px;border:1px solid #3a4b68;color:#c8d8f2;border-radius:999px;padding:3px 8px}.fit{font-weight:650}.good{color:var(--green)}.maybe{color:var(--yellow)}.bad{color:var(--red)}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.card p{margin:0;color:var(--muted)}.card .bottom{margin-top:auto;padding-top:8px;display:flex;justify-content:space-between;gap:8px;align-items:center}.panel{padding:16px;margin:18px 0}.small{font-size:13px;color:var(--muted)}footer{border-top:1px solid var(--line);padding:22px;color:var(--muted);text-align:center}button{background:#24436e;border:1px solid #4b79b8;color:white;padding:10px 14px;border-radius:9px;cursor:pointer}@media(max-width:850px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.cards{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.wrap{padding:16px 12px}}
-</style></head>
-<body>
-<header><h1>Local AI Model Atlas</h1><div class="sub">A practical catalog for local LLMs, coding, reasoning, vision, speech, embeddings and voice-assistant building. Compare model families against your current PC and a future upgrade.</div></header>
-<main class="wrap">
-<div class="notice"><b>Important:</b> “Fits” means a reasonable starting point, not a guarantee of smooth speed. Estimates assume Windows, CPU-only for current PCs, quantized GGUF where applicable, short context and no other heavy apps. Your i3-6100T has 8 GB system RAM and no dedicated VRAM: begin with 0.5B–1.5B Q4 models. A 3B model may run, but may be slow and memory-tight. Speech and embedding models are separate tools, not chat LLM replacements.</div>
-<div class="stats"><div class="stat"><b id="total">60+</b><span>catalog entries</span></div><div class="stat"><b>3</b><span>hardware profiles</span></div><div class="stat"><b>6</b><span>model categories</span></div><div class="stat"><b>₹0</b><span>catalog cost; model licences vary</span></div></div>
-<div class="panel"><h2>Choose your hardware</h2><p class="muted">The upgrade profile is a planning target, not a claim about hardware you already own.</p>
-<div class="filters"><select id="profile"><option value="i3">Current PC — i3 6th Gen, 8 GB RAM, CPU-only</option><option value="i5">i5 8th Gen — assume 16 GB RAM, CPU-only</option><option value="future">Suggested upgrade — 32 GB RAM + NVIDIA GPU with 12 GB VRAM</option></select><select id="category"><option value="all">All categories</option><option>Chat / General LLM</option><option>Coding</option><option>Reasoning</option><option>Vision / Multimodal</option><option>Speech-to-Text</option><option>Text-to-Speech</option><option>Embeddings / RAG</option></select><input id="search" placeholder="Search model, task, language, family…"></div>
-<div class="small" id="fitSummary">Loading catalog…</div></div>
-<div class="cards" id="cards"></div>
-<div class="panel"><h2>Suggested starting stack for your voice assistant</h2><ol><li><b>Chat brain:</b> Qwen3-0.6B or Qwen3-1.7B GGUF Q4; test both on your actual PC.</li><li><b>Hindi speech input:</b> Whisper tiny multilingual or a lightweight faster-whisper configuration; test noisy Hindi/Hinglish audio.</li><li><b>Speech output:</b> first try Windows built-in Hindi voices / browser speech synthesis. Local neural TTS can use more memory and setup.</li><li><b>Knowledge search:</b> a small multilingual embedding model, only if your app needs document retrieval.</li><li><b>PC control:</b> model output must go through a permission-checked tool layer; never execute arbitrary shell commands directly from model text.</li></ol><p class="small">For an online-first assistant, a remote API can provide stronger reasoning without loading a large LLM locally, but requires internet and provider-specific free-tier limits. This catalog is a model shortlist, not a benchmark. Check license, quantization file size, context memory, and real tokens/second before committing.</p></div>
-<div class="panel"><h2>Official / model-card sources</h2><p><a href="https://huggingface.co/collections/Qwen/qwen3" target="_blank" rel="noreferrer">Qwen3 family</a> · <a href="https://huggingface.co/google/gemma-3-270m-it" target="_blank" rel="noreferrer">Gemma 3 270M</a> · <a href="https://huggingface.co/blog/gemma3" target="_blank" rel="noreferrer">Gemma 3 overview</a> · <a href="https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct" target="_blank" rel="noreferrer">SmolLM2</a> · <a href="https://huggingface.co/microsoft/Phi-3.5-mini-instruct" target="_blank" rel="noreferrer">Phi-3.5 Mini</a> · <a href="https://huggingface.co/openai/whisper-tiny" target="_blank" rel="noreferrer">Whisper Tiny</a> · <a href="https://huggingface.co/BAAI/bge-m3" target="_blank" rel="noreferrer">BGE-M3 embeddings</a> · <a href="https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2" target="_blank" rel="noreferrer">Multilingual MiniLM</a></p><p class="small">Model availability, names and licences can change. This static HTML file does not download or run models. “RAM need” is a rough deployment estimate including runtime overhead, not a vendor guarantee.</p></div>
-</main><footer>Local AI Model Atlas · Single-file HTML · No frameworks, no external scripts, no tracking.</footer>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121a2e;--line:#27334d;--muted:#9eacc5;--text:#edf3ff;--accent:#83aaff;--good:#78dfb1;--warn:#ffd27a}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#172444,var(--bg) 55%);color:var(--text);font:15px/1.55 system-ui,Segoe UI,sans-serif}header{padding:38px max(20px,calc((100vw - 1200px)/2)) 24px;border-bottom:1px solid var(--line)}h1{font-size:clamp(28px,4vw,44px);line-height:1.1;margin:0 0 12px}p{color:var(--muted)}.wrap{max-width:1200px;margin:auto;padding:22px 18px}.stats{display:flex;gap:10px;flex-wrap:wrap}.pill{border:1px solid var(--line);border-radius:999px;padding:6px 11px;color:#d7e4ff;background:#101a30}.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;background:#11192b;padding:14px;border:1px solid var(--line);border-radius:16px;position:sticky;top:0;z-index:2}input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #34425f;background:#0b1222;color:var(--text)}.hint{font-size:13px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:12px;margin-top:16px}.card{background:linear-gradient(150deg,#151f35,#101727);border:1px solid var(--line);border-radius:15px;padding:16px;min-width:0}.card h3{font-size:17px;margin:7px 0}.meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.tag{font-size:11px;padding:3px 7px;border-radius:6px;background:#202d49;color:#cbdcff}.fit{font-size:12px;color:var(--good)}.fit.maybe{color:var(--warn)}a{color:var(--accent)}.card p{font-size:13px;margin:8px 0}.bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.notice{border:1px solid #66532d;background:#241e13;border-radius:12px;padding:12px;color:#f3dfb7;margin:16px 0}.section{margin-top:28px}.section h2{font-size:21px}.stack{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}.stack>div{border:1px solid var(--line);border-radius:12px;padding:14px;background:#11192b}footer{border-top:1px solid var(--line);padding:20px;color:var(--muted);font-size:12px;margin-top:28px}@media(max-width:750px){.filters{grid-template-columns:1fr 1fr;position:static}.filters input{grid-column:1/-1}}
+</style></head><body>
+<header><div class="wrap" style="padding:0"><div class="pill" style="display:inline-block;margin-bottom:14px">VOICE ASSISTANT LAB · MODEL DIRECTORY</div><h1>AI Model Atlas</h1><p>Explore local and cloud AI models by task, approximate size, and hardware fit. Built for practical model selection—not leaderboard hype.</p><div class="stats"><span class="pill"><b id="total">0</b> catalog entries</span><span class="pill">Search + category filters</span><span class="pill">CPU / RAM / VRAM guidance</span><span class="pill">Hindi & speech models</span></div></div></header>
+<main class="wrap"><div class="filters"><input id="q" placeholder="Search model, task, language, family…"><select id="cat"><option value="">All categories</option></select><select id="hw"><option value="i3">Current PC · i3 6th gen / 8GB / CPU</option><option value="i5">i5 8th gen · assumed 16GB / CPU</option><option value="gpu">Upgrade · 32GB + NVIDIA 12GB VRAM</option><option value="cloud">Cloud/API or hosted</option></select><select id="sort"><option value="name">Sort: name</option><option value="size">Sort: smallest first</option><option value="ram">Sort: lowest RAM first</option></select></div>
+<p class="hint">Hardware estimates assume a quantized model where practical. “Possible” means it may load, not that it will be fast. Leave memory for Windows, browser, and the assistant app.</p>
+<div class="notice"><b>Reality check for your current PC:</b> i3-6100T + 8GB RAM + no dedicated GPU is best for tiny 0.5B–1.7B quantized LLMs, small embedding models, Whisper tiny/base or Vosk, and lightweight TTS. A 3B–4B model may run slowly with tight memory; 7B+ is generally not a comfortable daily experience on this machine.</div>
+<div class="bar"><span id="count">Loading catalog…</span><button id="reset" style="background:#1b2b49;color:white;border:1px solid #3a4c6b;border-radius:9px;padding:10px 14px;cursor:pointer">Reset filters</button></div><div id="grid" class="grid"></div>
+<section class="section"><h2>Starter stacks by hardware</h2><div class="stack">
+<div><b>Current i3 / 8GB</b><p>Chat: Qwen2.5 0.5B/1.5B or Llama 3.2 1B (quantized). Speech input: Whisper tiny/base or Vosk Hindi. Speech output: Windows SAPI or Piper. RAG: MiniLM or multilingual-e5-small.</p></div>
+<div><b>i5 8th gen / 16GB</b><p>Try 1.5B–4B quantized chat/coding models; Whisper base/small; Kokoro/Piper TTS. 7B may load with aggressive quantization but expect CPU latency.</p></div>
+<div><b>Upgrade / 32GB + 12GB VRAM</b><p>Consider 7B–14B quantized models, vision models around 3B–8B, faster STT and local embeddings. Exact fit depends on context length, quantization, runtime, and GPU architecture.</p></div>
+<div><b>Cloud/API</b><p>Use hosted models when quality or speed matters more than offline privacy. API access, pricing, limits, and internet are provider-dependent; this directory does not imply a free tier.</p></div>
+</div></section>
+<section class="section"><h2>How to read the estimates</h2><p>Model parameter count is not the same as RAM usage. Actual memory depends on quantization, context length, runtime, KV cache, and whether weights are offloaded to a GPU. Speech and embedding models use different memory patterns from chat LLMs. Follow each model card for license, supported languages, and current files before installing.</p></section>
+<footer>Directory is a curated starting point, not an exhaustive list of every model ever released. Fit labels are rough planning estimates, not benchmark guarantees. Always verify the official model card, license, hardware requirements, and safety considerations. No external JavaScript libraries are used.</footer></main>
 <script>
-const models=[
-["Qwen3-0.6B","Chat / General LLM","0.6B","GGUF Q4","Hindi/multilingual chat; tiny assistant brain","~1–2 GB","easy","easy","easy","https://huggingface.co/collections/Qwen/qwen3"],
-["Qwen3-1.7B","Chat / General LLM","1.7B","GGUF Q4","Strong small multilingual general model","~2–3 GB","easy","easy","easy","https://huggingface.co/collections/Qwen/qwen3"],
-["Qwen3-4B","Chat / General LLM","4B","GGUF Q4","Better general answers; memory-tight on 8 GB","~3–4 GB+","tight","good","easy","https://huggingface.co/collections/Qwen/qwen3"],
-["Qwen3-8B","Chat / General LLM","8B","GGUF Q4","General chat; better on upgraded GPU/RAM","~5–7 GB+","no","tight","good","https://huggingface.co/collections/Qwen/qwen3"],
-["Qwen3-14B","Chat / General LLM","14B","GGUF Q4","Higher quality; not current-PC friendly","~9–11 GB+","no","no","good","https://huggingface.co/collections/Qwen/qwen3"],
-["Qwen2.5-0.5B-Instruct","Chat / General LLM","0.5B","GGUF Q4","Very small basic assistant","~1 GB","easy","easy","easy","https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct"],
-["Qwen2.5-1.5B-Instruct","Chat / General LLM","1.5B","GGUF Q4","Compact multilingual chat","~2 GB","easy","easy","easy","https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct"],
-["Qwen2.5-3B-Instruct","Chat / General LLM","3B","GGUF Q4","More capable, likely slower on old CPU","~2.5–3.5 GB+","tight","good","easy","https://huggingface.co/Qwen/Qwen2.5-3B-Instruct"],
-["Qwen2.5-7B-Instruct","Chat / General LLM","7B","GGUF Q4","Useful general model with more memory","~5 GB+","no","tight","good","https://huggingface.co/Qwen/Qwen2.5-7B-Instruct"],
-["Llama 3.2 1B Instruct","Chat / General LLM","1B","GGUF Q4","Small chat; language quality varies","~1.5–2 GB","easy","easy","easy","https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct"],
-["Llama 3.2 3B Instruct","Chat / General LLM","3B","GGUF Q4","General chat; test speed and licence","~2.5–3.5 GB+","tight","good","easy","https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct"],
-["Gemma 3 270M IT","Chat / General LLM","0.27B","Q4","Tiny instruction model; limited depth","<1 GB","easy","easy","easy","https://huggingface.co/google/gemma-3-270m-it"],
-["Gemma 3 1B IT","Chat / General LLM","1B","GGUF/QAT Q4","Small text-only assistant","~1.5–2 GB","easy","easy","easy","https://huggingface.co/google/gemma-3-1b-it"],
-["Gemma 3 4B IT","Chat / General LLM","4B","Q4","Multimodal; current PC memory-tight","~3–4 GB+","tight","good","easy","https://huggingface.co/google/gemma-3-4b-it"],
-["Gemma 2 2B IT","Chat / General LLM","2B","GGUF Q4","Compact general chat","~2–3 GB","tight","good","easy","https://huggingface.co/google/gemma-2-2b-it"],
-["SmolLM2-135M-Instruct","Chat / General LLM","135M","GGUF Q4","Tiny offline text tasks, not deep reasoning","<1 GB","easy","easy","easy","https://huggingface.co/HuggingFaceTB/SmolLM2-135M-Instruct"],
-["SmolLM2-360M-Instruct","Chat / General LLM","360M","GGUF Q4","Lightweight rewriting and simple tasks","<1 GB","easy","easy","easy","https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct"],
-["SmolLM2-1.7B-Instruct","Chat / General LLM","1.7B","GGUF Q4","Compact local chat and tool-style tasks","~2–3 GB","easy","easy","easy","https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct"],
-["TinyLlama-1.1B-Chat","Chat / General LLM","1.1B","GGUF Q4","Fast baseline; weaker reasoning","~1.5–2 GB","easy","easy","easy","https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0"],
-["StableLM-2-1.6B-Chat","Chat / General LLM","1.6B","GGUF Q4","Compact English-centric chat","~2–3 GB","easy","easy","easy","https://huggingface.co/stabilityai/stablelm-2-1_6b-chat"],
-["Phi-3.5-mini-instruct","Chat / General LLM","3.8B","GGUF Q4","Capable small model; 8 GB can be tight","~3–4 GB+","tight","good","easy","https://huggingface.co/microsoft/Phi-3.5-mini-instruct"],
-["Phi-3-mini-4k-instruct","Chat / General LLM","3.8B","GGUF Q4","Older compact assistant model","~3–4 GB+","tight","good","easy","https://huggingface.co/microsoft/Phi-3-mini-4k-instruct"],
-["MiniCPM3-4B","Chat / General LLM","4B","GGUF/quantized","Compact multilingual general model","~3–4 GB+","tight","good","easy","https://huggingface.co/openbmb/MiniCPM3-4B"],
-["InternLM2.5-1.8B-Chat","Chat / General LLM","1.8B","quantized","Small chat option; verify runtime format","~2–3 GB","easy","easy","easy","https://huggingface.co/internlm/internlm2_5-1_8b-chat"],
-["OpenELM-1.1B-Instruct","Chat / General LLM","1.1B","quantized","Research-oriented compact model","~2 GB","easy","easy","easy","https://huggingface.co/apple/OpenELM-1_1B-Instruct"],
-["DeepSeek-R1-Distill-Qwen-1.5B","Reasoning","1.5B","GGUF Q4","Step-by-step reasoning; may ramble","~2–3 GB","easy","easy","easy","https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"],
-["DeepSeek-R1-Distill-Qwen-7B","Reasoning","7B","GGUF Q4","More capable reasoning; not current PC","~5 GB+","no","tight","good","https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"],
-["DeepSeek-R1-Distill-Llama-8B","Reasoning","8B","GGUF Q4","Reasoning-focused; upgrade recommended","~5–7 GB+","no","tight","good","https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Llama-8B"],
-["Qwen3-4B-Thinking","Reasoning","4B","quantized","Thinking-capable variant; slow on old CPU","~3–4 GB+","tight","good","easy","https://huggingface.co/collections/Qwen/qwen3"],
-["Phi-4-mini-instruct","Reasoning","3.8B","quantized","Reasoning/instruction model; test hardware","~3–4 GB+","tight","good","easy","https://huggingface.co/microsoft/Phi-4-mini-instruct"],
-["Qwen2.5-Coder-0.5B-Instruct","Coding","0.5B","GGUF Q4","Small code completion and explanation","~1 GB","easy","easy","easy","https://huggingface.co/Qwen/Qwen2.5-Coder-0.5B-Instruct"],
-["Qwen2.5-Coder-1.5B-Instruct","Coding","1.5B","GGUF Q4","Best first coding model to test locally","~2 GB","easy","easy","easy","https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct"],
-["Qwen2.5-Coder-3B-Instruct","Coding","3B","GGUF Q4","More coding capability, may feel slow","~3 GB+","tight","good","easy","https://huggingface.co/Qwen/Qwen2.5-Coder-3B-Instruct"],
-["Qwen2.5-Coder-7B-Instruct","Coding","7B","GGUF Q4","Useful coding assistant on stronger setup","~5 GB+","no","tight","good","https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct"],
-["CodeGemma-2B","Coding","2B","quantized","Code completion and coding tasks","~2–3 GB","tight","good","easy","https://huggingface.co/google/codegemma-2b"],
-["StarCoder2-3B","Coding","3B","quantized","Code generation; licence/use terms check","~3 GB+","tight","good","easy","https://huggingface.co/bigcode/starcoder2-3b"],
-["DeepSeek-Coder-1.3B-Instruct","Coding","1.3B","GGUF Q4","Compact code assistant","~2 GB","easy","easy","easy","https://huggingface.co/deepseek-ai/deepseek-coder-1.3b-instruct"],
-["Granite-3.3-2B-Instruct","Coding","2B","quantized","Instruction and tool-use oriented","~2–3 GB","tight","good","easy","https://huggingface.co/ibm-granite/granite-3.3-2b-instruct"],
-["Moondream2","Vision / Multimodal","~2B","quantized","Image captioning and visual Q&A","~2–4 GB+","tight","good","easy","https://huggingface.co/vikhyatk/moondream2"],
-["SmolVLM-256M-Instruct","Vision / Multimodal","256M","quantized","Tiny image-and-text model; limited detail","~1–2 GB","easy","easy","easy","https://huggingface.co/HuggingFaceTB/SmolVLM-256M-Instruct"],
-["SmolVLM-500M-Instruct","Vision / Multimodal","500M","quantized","Lightweight image Q&A","~1–2 GB","easy","easy","easy","https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct"],
-["Qwen2.5-VL-3B-Instruct","Vision / Multimodal","3B","quantized","Screenshots, images and documents; CPU may be slow","~3–5 GB+","no","tight","good","https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct"],
-["LLaVA-1.5-7B","Vision / Multimodal","7B","GGUF Q4","Image understanding; needs more memory","~5–7 GB+","no","tight","good","https://huggingface.co/llava-hf/llava-1.5-7b-hf"],
-["Gemma 3 4B IT Vision","Vision / Multimodal","4B","quantized","Multilingual image + text; 8 GB tight","~4 GB+","no","tight","good","https://huggingface.co/google/gemma-3-4b-it"],
-["Whisper tiny (multilingual)","Speech-to-Text","39M","FP16/CPU","Hindi and multilingual transcription; good starting point","~1 GB+","easy","easy","easy","https://huggingface.co/openai/whisper-tiny"],
-["Whisper base (multilingual)","Speech-to-Text","74M","FP16/CPU","Better ASR, moderate CPU load","~1–2 GB+","easy","easy","easy","https://huggingface.co/openai/whisper-base"],
-["Whisper small (multilingual)","Speech-to-Text","244M","FP16/CPU","Higher ASR quality; CPU speed may be limited","~2–3 GB+","tight","good","easy","https://huggingface.co/openai/whisper-small"],
-["Whisper medium","Speech-to-Text","769M","FP16/CPU","Better accuracy; not ideal for real-time old CPU","~4–5 GB+","no","tight","good","https://huggingface.co/openai/whisper-medium"],
-["Distil-Whisper large-v3","Speech-to-Text","~756M","optimized","Efficient English ASR; not intended as Hindi-first choice","~2–4 GB+","no","tight","good","https://huggingface.co/distil-whisper/distil-large-v3"],
-["Vosk Hindi model","Speech-to-Text","varies","Vosk runtime","Offline Hindi ASR option; accuracy depends on model","~0.5–1.5 GB","easy","easy","easy","https://alphacephei.com/vosk/models"],
-["Piper TTS","Text-to-Speech","voice-dependent","ONNX","Lightweight local speech; verify Hindi voice availability","~0.2–1 GB","easy","easy","easy","https://github.com/rhasspy/piper"],
-["Kokoro 82M","Text-to-Speech","82M","ONNX/PyTorch","Compact neural TTS; language/voice support depends on build","~0.5–2 GB","easy","easy","easy","https://huggingface.co/hexgrad/Kokoro-82M"],
-["MMS-TTS Hindi","Text-to-Speech","varies","Transformers","Hindi speech generation; setup and voice quality vary","~1–2 GB+","easy","easy","easy","https://huggingface.co/facebook/mms-tts-hin"],
-["Indic Parler-TTS","Text-to-Speech","varies","PyTorch","Indic-language expressive speech research option","~2–5 GB+","no","tight","good","https://huggingface.co/ai4bharat"],
-["Coqui XTTS-v2","Text-to-Speech","~0.5B class","PyTorch","Voice cloning/multilingual; heavier setup","~4–8 GB+","no","tight","good","https://huggingface.co/coqui/XTTS-v2"],
-["paraphrase-multilingual-MiniLM-L12-v2","Embeddings / RAG","~118M","Sentence Transformers","Small multilingual semantic search","~0.5–1 GB","easy","easy","easy","https://huggingface.co/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"],
-["multilingual-e5-small","Embeddings / RAG","~118M","Sentence Transformers","Light multilingual retrieval embeddings","~0.5–1 GB","easy","easy","easy","https://huggingface.co/intfloat/multilingual-e5-small"],
-["multilingual-e5-base","Embeddings / RAG","~278M","Sentence Transformers","Stronger retrieval; modest memory","~1–2 GB","easy","easy","easy","https://huggingface.co/intfloat/multilingual-e5-base"],
-["BAAI/bge-m3","Embeddings / RAG","~568M","Sentence Transformers","Multilingual and multi-function retrieval","~2–3 GB","tight","good","easy","https://huggingface.co/BAAI/bge-m3"],
-["bge-small-en-v1.5","Embeddings / RAG","~33M","Sentence Transformers","Very small English retrieval embeddings","<1 GB","easy","easy","easy","https://huggingface.co/BAAI/bge-small-en-v1.5"],
-["nomic-embed-text-v1.5","Embeddings / RAG","~137M","GGUF/ONNX","Local text embeddings for RAG","~0.5–1.5 GB","easy","easy","easy","https://huggingface.co/nomic-ai/nomic-embed-text-v1.5"],
-["jina-embeddings-v2-base-multilingual","Embeddings / RAG","~278M","Transformers","Multilingual document retrieval","~1–2 GB","easy","easy","easy","https://huggingface.co/jinaai/jina-embeddings-v2-base-multilingual"],
-["bge-reranker-base","Embeddings / RAG","~278M","Transformers","Reranks retrieved documents; not a chat model","~1–2 GB","easy","easy","easy","https://huggingface.co/BAAI/bge-reranker-base"],
-["MiniLM-L6-v2","Embeddings / RAG","~22M","Sentence Transformers","Tiny English semantic search","<1 GB","easy","easy","easy","https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"]
-];
-const labels={easy:"Likely comfortable",tight:"Possible, memory/speed trade-off",good:"Reasonable fit",no:"Not recommended"};
-function fit(m,p){let v=m[p];return v==="easy"?"good":v==="good"?"maybe":v==="tight"?"maybe":"bad"}
-function fitText(m,p){const v=m[p];if(v==="easy")return p==="i3"?"Best first test":"Good fit";if(v==="tight")return p==="i3"?"May run, likely slow/tight":"Possible, test first";if(v==="good")return p==="future"?"Good fit":"Good fit";return p==="i3"?"Avoid on this PC":p==="i5"?"Not recommended":"GPU/RAM may still be insufficient"}
-function render(){const p=document.getElementById('profile').value,c=document.getElementById('category').value,s=document.getElementById('search').value.toLowerCase();const filtered=models.filter(m=>(c==="all"||m[1]===c)&&m.slice(0,6).join(" ").toLowerCase().includes(s));document.getElementById('total').textContent=models.length;document.getElementById('fitSummary').textContent=filtered.length+" models shown · "+filtered.filter(m=>m[p]==="easy").length+" strongest low-friction fits for selected profile. Ratings are estimates, not benchmark results.";document.getElementById('cards').innerHTML=filtered.map(m=>'<article class="card"><div class="meta"><span class="tag">'+m[1]+'</span><span class="tag">'+m[2]+'</span><span class="tag">'+m[3]+'</span></div><h3>'+m[0]+'</h3><p>'+m[4]+'</p><p><b>Approx. RAM:</b> '+m[5]+'</p><p class="fit '+fit(m,p)+'">'+fitText(m,p)+'</p><div class="bottom"><span class="small">Profile: '+(p==="i3"?"i3 6th / 8GB":p==="i5"?"i5 8th / 16GB":"32GB + 12GB VRAM")+'</span><a href="'+m[9]+'" target="_blank" rel="noreferrer">Model card ↗</a></div></article>').join("")||'<div class="panel">No matching models. Try a shorter search.</div>'}
-['profile','category','search'].forEach(id=>document.getElementById(id).addEventListener(id==='search'?'input':'change',render));render();
+const rows = `
+Qwen3 0.6B|Chat / LLM|0.6B|2|yes|Tiny general assistant, multilingual|Qwen/Qwen3-0.6B
+Qwen3 1.7B|Chat / LLM|1.7B|4|yes|Compact chat and tool-use experiments|Qwen/Qwen3-1.7B
+Qwen3 4B|Chat / LLM|4B|7|maybe|Stronger compact general model|Qwen/Qwen3-4B
+Qwen3 8B|Chat / LLM|8B|12|no|Higher-quality local chat|Qwen/Qwen3-8B
+Qwen3 14B|Chat / LLM|14B|20|no|Large local assistant|Qwen/Qwen3-14B
+Qwen2.5 0.5B Instruct|Chat / LLM|0.5B|2|yes|Very small instruction model|Qwen/Qwen2.5-0.5B-Instruct
+Qwen2.5 1.5B Instruct|Chat / LLM|1.5B|4|yes|Lightweight general chat|Qwen/Qwen2.5-1.5B-Instruct
+Qwen2.5 3B Instruct|Chat / LLM|3B|6|maybe|Compact general assistant|Qwen/Qwen2.5-3B-Instruct
+Qwen2.5 7B Instruct|Chat / LLM|7B|10|no|General-purpose local LLM|Qwen/Qwen2.5-7B-Instruct
+Qwen2.5 14B Instruct|Chat / LLM|14B|19|no|Quality-focused local chat|Qwen/Qwen2.5-14B-Instruct
+Llama 3.2 1B Instruct|Chat / LLM|1B|3|yes|Small assistant and summarization|meta-llama/Llama-3.2-1B-Instruct
+Llama 3.2 3B Instruct|Chat / LLM|3B|6|maybe|Compact general chat|meta-llama/Llama-3.2-3B-Instruct
+Llama 3.1 8B Instruct|Chat / LLM|8B|12|no|Popular general local LLM|meta-llama/Meta-Llama-3.1-8B-Instruct
+Gemma 3 270M|Tiny / Small LLM|270M|1|yes|Ultra-small experiments|google/gemma-3-270m
+Gemma 3 1B|Chat / LLM|1B|3|yes|Small multilingual assistant|google/gemma-3-1b-it
+Gemma 3 4B|Chat / LLM|4B|8|maybe|Text and image-capable family|google/gemma-3-4b-it
+Gemma 2 2B|Chat / LLM|2B|5|maybe|Small general chat|google/gemma-2-2b-it
+SmolLM2 135M|Tiny / Small LLM|135M|1|yes|Edge and toy assistant tasks|HuggingFaceTB/SmolLM2-135M-Instruct
+SmolLM2 360M|Tiny / Small LLM|360M|2|yes|Tiny offline text tasks|HuggingFaceTB/SmolLM2-360M-Instruct
+SmolLM2 1.7B|Tiny / Small LLM|1.7B|4|yes|Compact local chat|HuggingFaceTB/SmolLM2-1.7B-Instruct
+TinyLlama 1.1B Chat|Tiny / Small LLM|1.1B|3|yes|Very lightweight chat|TinyLlama/TinyLlama-1.1B-Chat-v1.0
+StableLM 2 1.6B|Tiny / Small LLM|1.6B|4|yes|Small language model|stabilityai/stablelm-2-1_6b-chat
+Phi-3 Mini 3.8B|Chat / LLM|3.8B|7|maybe|Compact reasoning and chat|microsoft/Phi-3-mini-4k-instruct
+Phi-3.5 Mini|Chat / LLM|3.8B|7|maybe|Multilingual compact assistant|microsoft/Phi-3.5-mini-instruct
+Phi-4 Mini Instruct|Reasoning|3.8B|8|maybe|Compact reasoning-oriented model|microsoft/Phi-4-mini-instruct
+MiniCPM3 4B|Chat / LLM|4B|8|maybe|Compact bilingual assistant|openbmb/MiniCPM3-4B
+InternLM2.5 1.8B Chat|Chat / LLM|1.8B|4|yes|Small multilingual chat|internlm/internlm2_5-1_8b-chat
+OpenELM 1.1B Instruct|Tiny / Small LLM|1.1B|3|yes|On-device language model research|apple/OpenELM-1_1B-Instruct
+DeepSeek R1 Distill Qwen 1.5B|Reasoning|1.5B|4|yes|Reasoning traces, compact|deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
+DeepSeek R1 Distill Qwen 7B|Reasoning|7B|11|no|Reasoning-focused local model|deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+DeepSeek R1 Distill Llama 8B|Reasoning|8B|12|no|Reasoning-focused local model|deepseek-ai/DeepSeek-R1-Distill-Llama-8B
+DeepSeek R1 Distill Qwen 14B|Reasoning|14B|20|no|Stronger distilled reasoning|deepseek-ai/DeepSeek-R1-Distill-Qwen-14B
+QwQ 32B|Reasoning|32B|42|no|Large reasoning model; GPU/server class|Qwen/QwQ-32B
+Qwen2.5 Coder 0.5B|Coding|0.5B|2|yes|Autocomplete and simple code help|Qwen/Qwen2.5-Coder-0.5B-Instruct
+Qwen2.5 Coder 1.5B|Coding|1.5B|4|yes|Light coding assistant|Qwen/Qwen2.5-Coder-1.5B-Instruct
+Qwen2.5 Coder 3B|Coding|3B|6|maybe|Code generation and explanation|Qwen/Qwen2.5-Coder-3B-Instruct
+Qwen2.5 Coder 7B|Coding|7B|11|no|Stronger local coding|Qwen/Qwen2.5-Coder-7B-Instruct
+Qwen2.5 Coder 14B|Coding|14B|20|no|Higher-quality coding model|Qwen/Qwen2.5-Coder-14B-Instruct
+CodeGemma 2B|Coding|2B|5|maybe|Code completion and generation|google/codegemma-2b
+StarCoder2 3B|Coding|3B|6|maybe|Code completion|bigcode/starcoder2-3b
+StarCoder2 7B|Coding|7B|11|no|Code generation|bigcode/starcoder2-7b
+DeepSeek Coder 1.3B|Coding|1.3B|4|yes|Small code model|deepseek-ai/deepseek-coder-1.3b-instruct
+DeepSeek Coder 6.7B|Coding|6.7B|10|no|Code generation and repair|deepseek-ai/deepseek-coder-6.7b-instruct
+Granite 3.3 2B Instruct|Coding|2B|5|maybe|Compact enterprise and code tasks|ibm-granite/granite-3.3-2b-instruct
+Granite 3.3 8B Instruct|Coding|8B|12|no|General and developer tasks|ibm-granite/granite-3.3-8b-instruct
+Codestral 22B|Coding|22B|30|no|Large code model; check license|mistralai/Codestral-22B-v0.1
+Moondream2|Vision / Multimodal|1.8B|5|maybe|Image question answering|vikhyatk/moondream2
+SmolVLM 256M|Vision / Multimodal|256M|2|yes|Tiny image understanding|HuggingFaceTB/SmolVLM-256M-Instruct
+SmolVLM 500M|Vision / Multimodal|500M|3|yes|Small vision-language tasks|HuggingFaceTB/SmolVLM-500M-Instruct
+Qwen2.5 VL 3B|Vision / Multimodal|3B|7|maybe|Image understanding and OCR-like tasks|Qwen/Qwen2.5-VL-3B-Instruct
+Qwen2.5 VL 7B|Vision / Multimodal|7B|12|no|Stronger image reasoning|Qwen/Qwen2.5-VL-7B-Instruct
+LLaVA 1.5 7B|Vision / Multimodal|7B|12|no|Image captioning and QA|llava-hf/llava-1.5-7b-hf
+Llama 3.2 11B Vision|Vision / Multimodal|11B|18|no|Vision-language model|meta-llama/Llama-3.2-11B-Vision-Instruct
+InternVL2.5 4B|Vision / Multimodal|4B|8|maybe|Multimodal understanding|OpenGVLab/InternVL2_5-4B
+PaliGemma 3B|Vision / Multimodal|3B|7|maybe|Vision-language research and tasks|google/paligemma-3b-pt-224
+Whisper Tiny|Speech-to-Text|39M|1|yes|Fast speech recognition, many languages|openai/whisper-tiny
+Whisper Base|Speech-to-Text|74M|1|yes|Better small-model transcription|openai/whisper-base
+Whisper Small|Speech-to-Text|244M|2|yes|Improved multilingual transcription|openai/whisper-small
+Whisper Medium|Speech-to-Text|769M|5|maybe|Higher accuracy, slower CPU|openai/whisper-medium
+Whisper Large v3 Turbo|Speech-to-Text|809M|6|maybe|Fast high-quality transcription|openai/whisper-large-v3-turbo
+Distil Whisper Large v3|Speech-to-Text|756M|5|maybe|Efficient English-focused transcription|distil-whisper/distil-large-v3
+Vosk Hindi|Speech-to-Text|small|1|yes|Offline Hindi speech recognition|alphacep/vosk-model-small-hi-0.22
+Vosk Indian English|Speech-to-Text|small|1|yes|Offline Indian-English recognition|alphacep/vosk-model-small-en-in-0.4
+NVIDIA Parakeet TDT 0.6B|Speech-to-Text|600M|3|maybe|Fast English ASR; NVIDIA stack|nvidia/parakeet-tdt-0.6b-v2
+Canary 1B|Speech-to-Text|1B|4|yes|Speech recognition and translation|nvidia/canary-1b
+Piper TTS|Text-to-Speech|varies|1|yes|Fast offline neural voice; voice files vary|rhasspy/piper
+Kokoro 82M|Text-to-Speech|82M|1|yes|Lightweight expressive TTS|hexgrad/Kokoro-82M
+MMS TTS Hindi|Text-to-Speech|varies|1|yes|Hindi speech synthesis|facebook/mms-tts-hin
+Indic Parler TTS|Text-to-Speech|varies|4|maybe|Indic-language speech generation|ai4bharat/Indic-Parler-TTS
+XTTS v2|Text-to-Speech|large|8|no|Multilingual voice cloning; check consent/license|coqui/XTTS-v2
+StyleTTS2|Text-to-Speech|varies|4|maybe|Expressive speech synthesis|yl4579/StyleTTS2
+Bark Small|Text-to-Speech|large|8|no|Generative audio; relatively heavy|suno/bark
+ChatTTS|Text-to-Speech|varies|6|maybe|Conversational Chinese-focused TTS|2noise/ChatTTS
+MeloTTS|Text-to-Speech|varies|2|yes|Multilingual TTS including English|myshell-ai/MeloTTS
+Multilingual MiniLM L12|Embeddings / RAG|118M|1|yes|Multilingual semantic search|sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+Multilingual E5 Small|Embeddings / RAG|118M|1|yes|Cross-language retrieval|intfloat/multilingual-e5-small
+Multilingual E5 Base|Embeddings / RAG|278M|2|yes|Stronger multilingual retrieval|intfloat/multilingual-e5-base
+BGE M3|Embeddings / RAG|568M|3|maybe|Multilingual dense/sparse retrieval|BAAI/bge-m3
+BGE Small EN|Embeddings / RAG|33M|1|yes|Fast English semantic search|BAAI/bge-small-en-v1.5
+Nomic Embed Text v1.5|Embeddings / RAG|137M|1|yes|Local document embeddings|nomic-ai/nomic-embed-text-v1.5
+Jina Embeddings v3|Embeddings / RAG|570M|3|maybe|Multilingual retrieval and classification|jinaai/jina-embeddings-v3
+MiniLM L6 v2|Embeddings / RAG|22M|1|yes|Tiny and fast vector search|sentence-transformers/all-MiniLM-L6-v2
+BGE Reranker Base|Embeddings / RAG|278M|2|yes|Re-rank retrieved passages|BAAI/bge-reranker-base
+Jina Reranker v2 Base Multilingual|Embeddings / RAG|278M|2|yes|Multilingual reranking|jinaai/jina-reranker-v2-base-multilingual
+IndicBERT v2|Hindi / Indic|110M|1|yes|Indic-language classification|ai4bharat/IndicBERTv2-MLM-only
+MuRIL|Hindi / Indic|236M|2|yes|Indian-language understanding|google/muril-base-cased
+AI4Bharat IndicTrans2 200M|Hindi / Indic|200M|2|yes|Indic translation toolkit|ai4bharat/indictrans2-en-indic-1B
+Hindi BERT|Hindi / Indic|110M|1|yes|Hindi text classification and NLP|l3cube-pune/hindi-bert
+Sarvam Hosted Models|Cloud / API|hosted|N/A|cloud|Indian-language hosted AI; provider terms apply|https://www.sarvam.ai/
+Gemini API|Cloud / API|hosted|N/A|cloud|Hosted multimodal model API; quotas/pricing vary|https://ai.google.dev/
+OpenAI API Models|Cloud / API|hosted|N/A|cloud|Hosted models and tools; pricing varies|https://platform.openai.com/docs/models
+Claude API Models|Cloud / API|hosted|N/A|cloud|Hosted reasoning and coding; pricing varies|https://docs.anthropic.com/
+GroqCloud Models|Cloud / API|hosted|N/A|cloud|Hosted inference; available models change|https://console.groq.com/docs/models
+Together AI Models|Cloud / API|hosted|N/A|cloud|Hosted open-model inference; prices vary|https://docs.together.ai/
+OpenRouter Models|Cloud / API|hosted|N/A|cloud|Multi-provider model gateway; availability varies|https://openrouter.ai/models
+Fireworks AI Models|Cloud / API|hosted|N/A|cloud|Hosted open-model inference|https://docs.fireworks.ai/
+Ollama Model Library|Tools / Runtime|N/A|N/A|yes|Local model runtime and downloadable model catalogue|https://ollama.com/library
+llama.cpp|Tools / Runtime|N/A|N/A|yes|CPU/GPU quantized inference runtime|https://github.com/ggml-org/llama.cpp
+Jan|Tools / Runtime|N/A|N/A|yes|Desktop local and cloud model client|https://jan.ai/
+LM Studio|Tools / Runtime|N/A|N/A|yes|Desktop local model manager; hardware dependent|https://lmstudio.ai/
+KoboldCpp|Tools / Runtime|N/A|N/A|yes|Portable llama.cpp-based local inference|https://github.com/LostRuins/koboldcpp
+GPT4All|Tools / Runtime|N/A|N/A|yes|Desktop local LLM app and model options|https://www.nomic.ai/gpt4all
+`.trim().split("\n").map(line=>{const [name,category,size,ram,fit,use,slug]=line.split("|");return{name,category,size,ram,fit,use,url:slug.startsWith("http")?slug:"https://huggingface.co/"+slug}});
+const $=id=>document.getElementById(id);const cats=[...new Set(rows.map(x=>x.category))].sort();cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;$("cat").append(o)});$("total").textContent=rows.length;
+function matches(m){const q=$("q").value.toLowerCase().trim(),c=$("cat").value,h=$("hw").value;let text=[m.name,m.category,m.size,m.use].join(" ").toLowerCase();if(q&&!text.includes(q))return false;if(c&&m.category!==c)return false;if(h==="cloud"&&m.fit!=="cloud"&&m.category!=="Tools / Runtime")return false;if(h!=="cloud"&&m.fit==="cloud")return false;if(h==="i3"&&m.fit==="no")return false;if(h==="i5"&&m.fit==="no"&&m.category!=="Tools / Runtime")return false;return true}
+function render(){let a=rows.filter(matches);const s=$("sort").value;a.sort((x,y)=>s==="size"?parseFloat(x.size)-parseFloat(y.size)||x.name.localeCompare(y.name):s==="ram"?parseFloat(x.ram)-parseFloat(y.ram)||x.name.localeCompare(y.name):x.name.localeCompare(y.name));$("count").textContent=a.length+" models/tools shown · "+rows.length+" total entries";$("grid").innerHTML=a.map(m=>{let f=m.fit==="yes"?"Likely lightweight":m.fit==="maybe"?"May run slowly / tight memory":m.fit==="cloud"?"Hosted service":"Not recommended on selected profile";return '<article class="card"><div class="bar"><span class="tag">'+m.category+'</span><span class="fit '+(m.fit==="maybe"||m.fit==="no"?"maybe":"")+'">'+f+'</span></div><h3>'+m.name+'</h3><div class="meta"><span class="tag">Size: '+m.size+'</span><span class="tag">RAM guide: '+m.ram+' GB</span></div><p>'+m.use+'</p><p class="hint">Hardware fit is approximate; model/runtime/quantization can change it.</p><a href="'+m.url+'" target="_blank" rel="noopener noreferrer">Official/model page ↗</a></article>'}).join("")||'<p>No results. Try another search or reset filters.</p>'}
+["q","cat","hw","sort"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",render));$("reset").onclick=()=>{$("q").value="";$("cat").value="";$("hw").value="i3";$("sort").value="name";render()};render();
 </script></body></html>
