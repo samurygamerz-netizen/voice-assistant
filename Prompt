@@ -1,0 +1,511 @@
+
+10. TOOL SYSTEM
+
+Do NOT allow the LLM to execute arbitrary shell commands directly.
+
+Implement a controlled tool architecture.
+
+Example:
+
+LLM
+ ↓
+Tool Router
+ ↓
+Permission Manager
+ ↓
+Approved Tool
+ ↓
+Execution
+ ↓
+Result
+ ↓
+LLM
+
+Create tools such as:
+
+get_system_info
+get_time
+open_application
+open_folder
+read_file
+search_local_files
+launch_program
+close_program
+get_running_processes
+get_cpu_usage
+get_memory_usage
+get_disk_usage
+
+Every dangerous operation must require confirmation.
+
+Examples:
+
+delete file
+modify registry
+shutdown PC
+restart PC
+execute arbitrary command
+install software
+modify system configuration
+
+The assistant must NEVER silently perform destructive actions.
+
+---
+
+
+11. COMMAND SECURITY
+
+Create a permission layer.
+
+For example:
+
+PermissionLevel.SAFE
+PermissionLevel.CONFIRM
+PermissionLevel.BLOCKED
+
+Safe:
+
+"What time is it?"
+"What's my CPU usage?"
+"Open Calculator."
+
+Confirmation:
+
+"Delete this file."
+"Shutdown the computer."
+"Run this PowerShell command."
+
+Blocked by default:
+
+credential theft
+password extraction
+malware execution
+security bypass
+destructive automation
+
+The LLM must never bypass the permission layer.
+
+---
+
+12. MEMORY
+
+Implement optional local memory.
+
+Use:
+
+SQLite
+
+Store:
+
+- conversation history
+- user preferences
+- assistant settings
+- optional long-term memories
+
+Provide:
+
+Memory ON/OFF
+Clear conversation
+Clear memory
+Export memory
+
+Do not send memory to external servers.
+
+---
+
+13. PROJECT STRUCTURE
+
+Create a clean architecture similar to:
+
+FOXSI-Voice-Assistant/
+│
+├── app/
+│   ├── main.py
+│   │
+│   ├── api/
+│   ├── core/
+│   ├── llm/
+│   │   ├── engine.py
+│   │   ├── model_manager.py
+│   │   └── prompts.py
+│   │
+│   ├── speech/
+│   │   ├── stt.py
+│   │   ├── tts.py
+│   │   └── wakeword.py
+│   │
+│   ├── tools/
+│   │   ├── router.py
+│   │   ├── permissions.py
+│   │   └── system_tools.py
+│   │
+│   ├── memory/
+│   │   └── database.py
+│   │
+│   ├── config/
+│   │   └── settings.py
+│   │
+│   └── services/
+│
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+│
+├── models/
+├── voices/
+├── data/
+├── logs/
+├── tests/
+│
+├── requirements.txt
+├── config.yaml
+├── .env.example
+├── README.md
+├── install.bat
+├── start.bat
+├── stop.bat
+└── diagnostics.bat
+
+Adapt the structure if a better architecture is technically justified.
+
+---
+
+14. INSTALLATION
+
+Create:
+
+install.bat
+
+It must:
+
+1. Check Python installation.
+2. Create a virtual environment.
+3. Install dependencies.
+4. Create required directories.
+5. Validate audio dependencies.
+6. Validate the local LLM runtime.
+7. Validate the web server.
+8. Print clear errors.
+9. Never hide installation failures.
+
+Create:
+
+start.bat
+
+which launches the assistant.
+
+Create:
+
+stop.bat
+
+which safely stops the local server.
+
+---
+
+15. DIAGNOSTICS
+
+Create:
+
+diagnostics.bat
+
+It must report:
+
+Python version
+OS
+CPU
+RAM
+GPU
+available VRAM if detectable
+Python environment
+LLM runtime
+GGUF models
+Whisper installation
+Piper installation
+microphone devices
+speaker devices
+localhost server status
+
+The diagnostic output must help troubleshoot installation problems.
+
+---
+
+16. CONFIGURATION
+
+Do not hard-code paths.
+
+Use:
+
+config.yaml
+
+Example:
+
+assistant:
+  name: "FOXSI"
+  language: "auto"
+
+server:
+  host: "127.0.0.1"
+  port: 8000
+
+llm:
+  model_path: "models/model.gguf"
+  context_size: 4096
+  temperature: 0.7
+  max_tokens: 1024
+  threads: 0
+  gpu_layers: -1
+
+stt:
+  engine: "faster-whisper"
+  model: "small"
+  language: "auto"
+
+tts:
+  engine: "piper"
+  voice: "voices/default.onnx"
+
+wakeword:
+  enabled: false
+  name: "Hey FOXSI"
+
+memory:
+  enabled: true
+
+Explain every setting in the README.
+
+---
+
+17. LOGGING
+
+Implement structured logging.
+
+Logs should be written to:
+
+logs/
+
+Log:
+
+- application startup
+- model loading
+- model unloading
+- STT errors
+- TTS errors
+- tool calls
+- permission decisions
+- exceptions
+- server status
+
+Never log:
+
+- passwords
+- API keys
+- private credentials
+- sensitive microphone audio
+
+---
+
+18. OFFLINE-FIRST REQUIREMENT
+
+The core assistant must work without internet.
+
+Internet may only be required for:
+
+- initial package installation
+- optional model download
+- optional software updates
+
+Once installed, this must work:
+
+Microphone
+↓
+Local STT
+↓
+Local LLM
+↓
+Local tools
+↓
+Local TTS
+
+No mandatory cloud API.
+
+Do not require:
+
+OpenAI API
+Google Gemini API
+Anthropic API
+Azure API
+paid API keys
+
+---
+
+19. PERFORMANCE
+
+The assistant must automatically choose reasonable defaults based on hardware.
+
+Do not assume:
+
+CUDA
+NVIDIA GPU
+AMD ROCm
+large VRAM
+
+CPU-only operation must remain supported.
+
+Avoid loading unnecessary models into RAM simultaneously.
+
+Use streaming where practical so the user sees/hears responses quickly.
+
+---
+
+20. ERROR HANDLING
+
+Never allow one component failure to crash the entire assistant.
+
+Examples:
+
+If TTS fails:
+
+Continue displaying text response.
+
+If microphone fails:
+
+Allow typed chat.
+
+If LLM fails:
+
+Display a clear diagnostic error.
+
+If wake-word fails:
+
+Allow push-to-talk.
+
+---
+
+21. TESTING
+
+Create automated tests for:
+
+configuration loading
+model discovery
+model selection
+LLM interface
+STT interface
+TTS interface
+permission manager
+tool router
+memory database
+API endpoints
+
+Also create a startup self-test.
+
+Example:
+
+✓ Configuration
+✓ Python environment
+✓ LLM runtime
+✓ Model
+✓ STT
+✓ TTS
+✓ Microphone
+✓ Local server
+
+---
+
+22. DOCUMENTATION
+
+Create a complete README containing:
+
+1. What the project is.
+2. Architecture.
+3. Requirements.
+4. Installation.
+5. Model installation.
+6. Voice installation.
+7. Starting the assistant.
+8. Opening localhost.
+9. Configuration.
+10. Changing the LLM.
+11. Changing the voice.
+12. Adding tools.
+13. Permission system.
+14. Troubleshooting.
+15. Offline operation.
+16. Performance tuning.
+17. Security model.
+
+Include exact commands where necessary.
+
+---
+
+23. DEVELOPMENT RULES
+
+Before writing code:
+
+1. Inspect the existing project.
+2. Determine the operating system.
+3. Determine Python version.
+4. Determine available hardware.
+5. Determine whether an existing virtual environment exists.
+6. Reuse existing working components where possible.
+7. Do not unnecessarily rewrite working code.
+
+Then create the implementation incrementally.
+
+After each major component:
+
+Implement
+↓
+Run test
+↓
+Fix errors
+↓
+Continue
+
+Do not simply generate files and assume they work.
+
+---
+
+24. IMPORTANT
+
+The final result must be a working local voice assistant, not merely a chatbot UI.
+
+The assistant must be able to:
+
+🎙️ Hear the user
+↓
+📝 Transcribe speech locally
+↓
+🧠 Think using the local GGUF LLM
+↓
+🛠️ Safely use approved PC tools
+↓
+💬 Generate a response
+↓
+🔊 Speak the response locally
+
+The project must run from localhost.
+
+The user must be able to replace the LLM by changing the GGUF file/configuration rather than modifying source code.
+
+Do not use fake implementations.
+
+Do not leave TODO placeholders for core functionality.
+
+If a dependency cannot be installed or supported on the user's machine, detect it and provide a concrete fallback.
+
+At the end, provide:
+
+PROJECT STATUS
+INSTALLATION STATUS
+LLM STATUS
+STT STATUS
+TTS STATUS
+VOICE STATUS
+LOCALHOST URL
+KNOWN LIMITATIONS
+HOW TO START
+
+Most importantly:
+
+BUILD THE PROJECT, TEST THE PROJECT, FIX THE PROJECT, AND ONLY THEN DECLARE IT READY.
